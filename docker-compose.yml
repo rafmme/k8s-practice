@@ -1,0 +1,57 @@
+version: "3"
+services:
+  db:
+    restart: always
+    image: rafmme/neon_ah_database
+    volumes:
+      - ./haven_db:/var/lib/postgresql/data
+    # Mapping the port 6000 on the host to the port 5432 on the container
+    ports:
+      - "6000:5432"
+    networks:
+      - webnet
+
+
+  # Specifications for the frontend service
+  frontend:
+    restart: always
+    image: rafmme/neon_ah_frontend
+
+    # Mapping the port 3110 on the host to the port 3110 on the container
+    ports:
+      - "3110:3110"
+    
+    # defining the networking of the container
+    networks:
+      - webnet
+ 
+      
+
+  # Specifications for the backend service
+  backend:
+    restart: always
+    image: rafmme/neon_ah_backend
+
+    # Mapping the port 4000 on the host to the port 4000 on the container
+    ports:
+      - "4000:4000"
+
+    depends_on:
+      - db
+
+    command:
+      - /bin/sh
+      - -c
+      - |
+        sleep 10
+        yarn run migrate
+        yarn run seed
+    
+    # defining the networking of the container
+    networks:
+      - webnet
+
+
+networks:
+  webnet:
+
